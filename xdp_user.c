@@ -11,7 +11,7 @@
 #include <sys/resource.h>
 #include <net/if.h>
 #include "prototype-kernel/kernel/samples/bpf/bpf_util.h"
-#include "prototype-kernel/kernel/samples/bpf/bpf.h"
+#include "prototype-kernel/kernel/samples/bpf/tools/lib/bpf/bpf.h"
 #include "prototype-kernel/kernel/samples/bpf/tools/lib/bpf/libbpf.h"
 
 static int ifindex;
@@ -44,7 +44,28 @@ static void usage(void *prog) {
 }
 
 static void poll_stats(int map_fd, int interval) {
-    
+    unsigned int nr_cpus = bpf_num_possible_cpus();
+    // values array hold data from each CPU
+    __u64 values[nr_cpus], prev[UINT8_MAX] = {0};
+    int i;
+    while (1) {
+        __u32 key = UINT8_MAX;
+        sleep(interval);
+
+        while (bpf_map_get_next_key(map_fd, &key, &key) != -1 ) {
+            __u64 sum = 0;
+            assert(bpf_map_lookup_elem(map_fd, &key, values) == 0);
+            for (i = 0; i < nr_cpus; i++) {
+                sum += values[i];
+                if (sum > prev[key]) {
+                    printf("proto %u: %10llu pkt/s\n", key, (sum - prev[key]) / interval);
+                }
+                prev[key]= sum;
+            }
+        }
+    }
+
+
 }
 
 int main(int argc, char **argv) {
@@ -119,6 +140,9 @@ int main(int argc, char **argv) {
 		printf("bpf_prog_load_xattr: %s\n", strerror(errno));
 		return 1;
 	}
+    
+	signal(SIGINT, int_exit);
+	signal(SIGTERM, int_exit);
 
     // Attached eBPF program to interface
     if (bpf_set_link_xdp_fd(ifindex, prog_fd, xdp_flags) < 0) {
