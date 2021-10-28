@@ -33,7 +33,7 @@ static void int_exit(int sig) {
 	exit(0);
 }
 
-static void usage(void *prog) {
+static void usage(const char *prog) {
     fprintf(stderr,
 		"usage: %s [OPTS] IFACE\n\n"
 		"OPTS:\n"
@@ -46,7 +46,7 @@ static void usage(void *prog) {
 static void poll_stats(int map_fd, int interval) {
     unsigned int nr_cpus = bpf_num_possible_cpus();
     // values array hold data from each CPU
-    __u64 values[nr_cpus], prev[UINT8_MAX] = {0};
+    __u64 values[nr_cpus], prev[UINT8_MAX] = { 0 };
     int i;
     while (1) {
         __u32 key = UINT8_MAX;
@@ -115,7 +115,8 @@ int main(int argc, char **argv) {
 	if (!ifindex) {
 		perror("if_nametoindex");
 		return 1;
-	}
+	}   
+
 
     snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
     pro_load_attr.file = filename;
@@ -126,7 +127,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     // obtain map
-    // Return an iteratorfor list of maps declared in prog
+    // Return an iterator for list of maps declared in prog
     map = bpf_map__next(NULL, obj);
     if (!map) {
         printf("failed to obtain map in obj file\n");
