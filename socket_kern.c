@@ -13,7 +13,7 @@ struct bpf_map_def SEC("maps") my_map = {
     .max_entries = 256
 };
 
-SEC("socket_kern")
+SEC("socket1")
 int bpf_prog1(struct __sk_buff *skb) {
     int index = load_byte(skb, ETH_HLEN + offsetof(struct iphdr, protocol));
     long *value;
