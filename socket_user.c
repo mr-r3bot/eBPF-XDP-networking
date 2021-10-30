@@ -38,14 +38,15 @@ static int open_rawsock(const char *name) {
 
 int main (int argc, char **argv) {
     struct bpf_object *obj;
-    struct bpf_prog_load_attr prog_attr;
+    struct bpf_prog_load_attr prog_attr = {
+        .log_level = 2,
+        .prog_type = BPF_PROG_TYPE_SOCKET_FILTER
+    };
     int map_fd, prog_fd;
     char filename[256];
 
     snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
     prog_attr.file = filename;
-    prog_attr.log_level = 2;
-    prog_attr.prog_type = BPF_PROG_TYPE_SOCKET_FILTER;
     //Load program
     if (bpf_prog_load_xattr(&prog_attr, &obj, &prog_fd)) {
         return 1;
