@@ -1,4 +1,4 @@
-## eBPF Programming - XDP networking
+## eBPF Programming
 Example of User-space and kernel-space interaction
 
 ### Compile kernel-space code
