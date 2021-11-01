@@ -16,8 +16,6 @@ SEC("tracepoint/syscalls/sys_enter_execve")
 int bpf_prog1(void *ctx) {
     char comm[16];
     bpf_get_current_comm(&comm, sizeof(comm));
-
-    // Kernel code cannot run this
     char msg[sizeof(comm)];
     bpf_probe_read(msg, sizeof(msg), comm);
     bpf_trace_printk(msg, sizeof(msg));
