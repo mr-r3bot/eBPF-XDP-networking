@@ -12,8 +12,8 @@
 //     .max_entries = 2
 // };
 
-SEC("kprobe/execve")
-int bpf_prog1(struct pt_regs *ctx) {
+SEC("tracepoint/syscalls/sys_enter_execve")
+int bpf_prog1(void *ctx) {
     char comm[16];
     bpf_get_current_comm(&comm, sizeof(comm));
 

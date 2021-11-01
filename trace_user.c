@@ -1,7 +1,10 @@
 #include <linux/bpf.h>
+#include <linux/perf_event.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <linux/hw_breakpoint.h>
+#include <sys/syscall.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include "prototype-kernel/kernel/samples/bpf/tools/lib/bpf/bpf.h"
@@ -32,9 +35,10 @@ int main(int argc, char **argv) {
     int prog_fd;
     struct bpf_program *prog;
     struct bpf_link *link = NULL;
+    // struct perf_event_attr pattr = {};
     struct bpf_prog_load_attr prog_attr = {
         .log_level = 2,
-        .prog_type = BPF_PROG_TYPE_KPROBE
+        .prog_type = BPF_PROG_TYPE_TRACEPOINT
     };
 
     prog_attr.file = "trace_kern.o";
@@ -55,6 +59,7 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
     read_trace_pipe();
+    
 
 cleanup:
     bpf_link__destroy(link);
