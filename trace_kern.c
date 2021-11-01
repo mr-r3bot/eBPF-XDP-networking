@@ -5,12 +5,12 @@
 #include "prototype-kernel/kernel/samples/bpf/bpf_helpers.h"
 #include "trace_common.h"
 
-// struct bpf_map_def SEC("maps") my_map = {
-//     .type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,
-//     .key_size = sizeof(int),
-//     .value_size = sizeof(__u32),
-//     .max_entries = 2
-// };
+struct bpf_map_def SEC("maps") my_map = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(__pid_t),
+    .value_size = sizeof(__u32),
+    .max_entries = 128
+};
 
 SEC("tracepoint/syscalls/sys_enter_execve")
 int bpf_prog1(void *ctx) {
